@@ -43,6 +43,12 @@ const std::string fingerNames[] = {"Thumb", "Index", "Middle", "Ring", "Pinky"};
 const std::string boneNames[] = {"Metacarpal", "Proximal", "Middle", "Distal"};
 const std::string stateNames[] = {"STATE_INVALID", "STATE_START", "STATE_UPDATE", "STATE_END"};
 
+void error(const char *msg)
+{
+    perror(msg);
+    exit(0);
+}
+
 void SampleListener::onInit(const Controller& controller) {
     //リスナーの初期化処理を行う。Leap::Controller::addListener()でリスナーを追加したときに呼び出される。
     std::cout << "Initialized" << std::endl;
@@ -72,6 +78,16 @@ void SampleListener::onFrame(const Controller& controller) {
     //フレームのデータが更新されたときに呼び出される。Leap Motionセンサーのデータは全てここで処理される。
     // Get the most recent frame and report some basic information
     const Frame frame = controller.frame();
+    int sockfd, portno, n;
+    struct sockaddr_in serv_addr;
+    struct hostent *server;
+    
+    char buffer[256];
+    //String.valueOf(buffer);
+    std::string str = std::to_string(frame.id());//string型に変換
+    //str.c_str();//string型をchar型に変換
+    strcpy(buffer,str.c_str());
+    //strcpy(buffer,str);
     std::cout << "Frame id: " << frame.id()
     << ", timestamp: " << frame.timestamp()
     << ", hands: " << frame.hands().count()
@@ -120,6 +136,38 @@ void SampleListener::onFrame(const Controller& controller) {
                 << ", direction: " << bone.direction() << std::endl;
             }
         }
+        
+        portno = atoi("9999");//ポート番号
+        sockfd = ::socket(AF_INET, SOCK_STREAM, 0);//ソケットの生成
+        if (sockfd < 0)
+            error("ERROR opening socket");
+        server = gethostbyname("localhost");
+        if (server == NULL) {
+            fprintf(stderr,"ERROR, no such host\n");
+            exit(0);
+        }
+        
+        bzero((char *) &serv_addr, sizeof(serv_addr));
+        serv_addr.sin_family = AF_INET;
+        bcopy((char *)server->h_addr,
+              (char *)&serv_addr.sin_addr.s_addr,
+              server->h_length);
+        serv_addr.sin_port = htons(portno);
+        if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0)
+            error("ERROR connecting");
+        printf("Please enter the message: ");
+        //bzero(buffer,256);
+        //fgets(buffer,255,stdin);
+        n = write(sockfd,str.c_str(),strlen(buffer));//データの発信
+        //n = write(sockfd, str, strlen(str));
+        if (n < 0)
+            error("ERROR writing to socket");
+        bzero(buffer,256);
+        n = read(sockfd,buffer,255);//データの受信
+        if (n < 0)
+            error("ERROR reading from socket");
+        printf("%s\n",buffer);
+        close(sockfd);
     }
     
     // Get tools
@@ -239,60 +287,13 @@ void SampleListener::onServiceDisconnect(const Controller& controller) {
     std::cout << "Service Disconnected" << std::endl;
 }
 
-void error(const char *msg)
-{
-    perror(msg);
-    exit(0);
-}
+
 
 int main(int argc, const char * argv[]) {
     // Create a sample listener and controller
     SampleListener listener;
     Controller controller;
-    int sockfd, portno, n;
-    struct sockaddr_in serv_addr;
-    struct hostent *server;
-    
-    char buffer[256];
-    
-    
-    
-      if (argc > 1 && strcmp(argv[1], "--bg") == 0)
-        controller.setPolicy(Leap::Controller::POLICY_BACKGROUND_FRAMES);
-    
-    
-    //while(1){
-        portno = atoi("9999");//ポート番号
-        sockfd = ::socket(AF_INET, SOCK_STREAM, 0);//ソケットの生成
-        if (sockfd < 0)
-            error("ERROR opening socket");
-        server = gethostbyname("localhost");
-        if (server == NULL) {
-            fprintf(stderr,"ERROR, no such host\n");
-            exit(0);
-        }
-        
-        bzero((char *) &serv_addr, sizeof(serv_addr));
-        serv_addr.sin_family = AF_INET;
-        bcopy((char *)server->h_addr,
-              (char *)&serv_addr.sin_addr.s_addr,
-              server->h_length);
-        serv_addr.sin_port = htons(portno);
-        if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0)
-            error("ERROR connecting");
-        printf("Please enter the message: ");
-        bzero(buffer,256);
-        fgets(buffer,255,stdin);
-        n = write(sockfd,buffer,strlen(buffer));//データの発信
-        if (n < 0)
-            error("ERROR writing to socket");
-        bzero(buffer,256);
-        n = read(sockfd,buffer,255);//データの受信
-        if (n < 0)
-            error("ERROR reading from socket");
-        printf("%s\n",buffer);
-    //}
-    close(sockfd);
+
     // Have the sample listener receive events from the controller
     controller.addListener(listener);
     // Keep this process running until Enter is pressed
