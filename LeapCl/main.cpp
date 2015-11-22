@@ -44,10 +44,12 @@ const std::string boneNames[] = {"Metacarpal", "Proximal", "Middle", "Distal"};
 const std::string stateNames[] = {"STATE_INVALID", "STATE_START", "STATE_UPDATE", "STATE_END"};
 
 void SampleListener::onInit(const Controller& controller) {
+    //リスナーの初期化処理を行う。Leap::Controller::addListener()でリスナーを追加したときに呼び出される。
     std::cout << "Initialized" << std::endl;
 }
 
 void SampleListener::onConnect(const Controller& controller) {
+    //Leap::ControllerクラスがLeap Motionセンサーと接続されたときに呼び出される。アプリケーション起動時にLeap Motionセンサーが接続されていない場合には、Leap Motionセンサーが接続されたときに呼ばれる。1台のPCに複数のLeap Motionセンサーを接続した場合には、先に接続された方が優先され、後に接続された方は特に通知もされず利用できないようだ。
     std::cout << "Connected" << std::endl;
     controller.enableGesture(Gesture::TYPE_CIRCLE);
     controller.enableGesture(Gesture::TYPE_KEY_TAP);
@@ -56,15 +58,18 @@ void SampleListener::onConnect(const Controller& controller) {
 }
 
 void SampleListener::onDisconnect(const Controller& controller) {
+    //Leap::ControllerクラスがLeap Motionセンサーから切断されたときに呼び出される。Leap Motionセンサーが物理的に引き抜かれた場合にも呼び出される
     // Note: not dispatched when running in a debugger.
     std::cout << "Disconnected" << std::endl;
 }
 
 void SampleListener::onExit(const Controller& controller) {
+    //リスナーの終了処理を行う。Leap::Controller::removeListener()でリスナーを削除したときに呼び出される。
     std::cout << "Exited" << std::endl;
 }
 
 void SampleListener::onFrame(const Controller& controller) {
+    //フレームのデータが更新されたときに呼び出される。Leap Motionセンサーのデータは全てここで処理される。
     // Get the most recent frame and report some basic information
     const Frame frame = controller.frame();
     std::cout << "Frame id: " << frame.id()
@@ -200,14 +205,21 @@ void SampleListener::onFrame(const Controller& controller) {
 }
 
 void SampleListener::onFocusGained(const Controller& controller) {
+    //既定ではLeap Motionのフレームデータはアプリケーションウィンドウがアクティブであるとき（＝最前面にあるとき）のみ通知される。onFocusGained()はアプリケーションがアクティブになったことを通知し、onFocusLost()はアプリケーションがアクティブでなくなったことを通知する。
+    
+    //通常のアプリケーションでは問題にならないが、タッチ入力をエミュレートする場合には、アプリケーションがアクティブでない場合がほとんどである（タッチ入力で別のアプリケーションを操作するため）。この設定はLeap::Controller::setPolicyFlags()で変更できる。setPolicyFlags()の引数にはPolicyFlag列挙体を与える。PolicyFlag列挙体には「POLICY_DEFAULT」と「POLICY_BACKGROUND_FRAMES」の2つが定義されている。POLICY_DEFAULTは既定のポリシーでアプリケーションがアクティブであるときのみフレームの更新が通知される。POLIC_BACKGROUND_FRAMESはバックグラウンド、つまりアプリケーションがアクティブではない状態でもフレームの更新が通知される。
     std::cout << "Focus Gained" << std::endl;
 }
 
 void SampleListener::onFocusLost(const Controller& controller) {
+    //既定ではLeap Motionのフレームデータはアプリケーションウィンドウがアクティブであるとき（＝最前面にあるとき）のみ通知される。onFocusGained()はアプリケーションがアクティブになったことを通知し、onFocusLost()はアプリケーションがアクティブでなくなったことを通知する。
+    
+    //通常のアプリケーションでは問題にならないが、タッチ入力をエミュレートする場合には、アプリケーションがアクティブでない場合がほとんどである（タッチ入力で別のアプリケーションを操作するため）。この設定はLeap::Controller::setPolicyFlags()で変更できる。setPolicyFlags()の引数にはPolicyFlag列挙体を与える。PolicyFlag列挙体には「POLICY_DEFAULT」と「POLICY_BACKGROUND_FRAMES」の2つが定義されている。POLICY_DEFAULTは既定のポリシーでアプリケーションがアクティブであるときのみフレームの更新が通知される。POLIC_BACKGROUND_FRAMESはバックグラウンド、つまりアプリケーションがアクティブではない状態でもフレームの更新が通知される。
     std::cout << "Focus Lost" << std::endl;
 }
 
 void SampleListener::onDeviceChange(const Controller& controller) {
+    //Leap Motionのデータを取得しているWindowsサービスとの接続／切断が通知される。onServiceDisconnect()が通知された場合には、何らかの原因でLeap Motionのデータが取得できなくなったので、サービスやOSの再起動が必要になる。
     std::cout << "Device Changed" << std::endl;
     const DeviceList devices = controller.devices();
     
@@ -233,27 +245,21 @@ void error(const char *msg)
 
 int main(int argc, const char * argv[]) {
     // Create a sample listener and controller
-    //SampleListener listener;
-    //Controller controller;
+    SampleListener listener;
+    Controller controller;
     int sockfd, portno, n;
     struct sockaddr_in serv_addr;
     struct hostent *server;
     
     char buffer[256];
     
-    // Have the sample listener receive events from the controller
-    //controller.addListener(listener);
     
-    //  if (argc > 1 && strcmp(argv[1], "--bg") == 0)
-    //    controller.setPolicy(Leap::Controller::POLICY_BACKGROUND_FRAMES);
     
-    // Keep this process running until Enter is pressed
-    //std::cout << "Press Enter to quit..." << std::endl;
-    //std::cin.get();
+      if (argc > 1 && strcmp(argv[1], "--bg") == 0)
+        controller.setPolicy(Leap::Controller::POLICY_BACKGROUND_FRAMES);
     
-    // Remove the sample listener when done
-    //controller.removeListener(listener);
-    while(1){
+    
+    //while(1){
         portno = atoi("9999");//ポート番号
         sockfd = ::socket(AF_INET, SOCK_STREAM, 0);//ソケットの生成
         if (sockfd < 0)
@@ -283,8 +289,16 @@ int main(int argc, const char * argv[]) {
         if (n < 0)
             error("ERROR reading from socket");
         printf("%s\n",buffer);
-    }
+    //}
     close(sockfd);
+    // Have the sample listener receive events from the controller
+    controller.addListener(listener);
+    // Keep this process running until Enter is pressed
+    std::cout << "Press Enter to quit..." << std::endl;
+    std::cin.get();
+    
+    // Remove the sample listener when done
+    controller.removeListener(listener);
     
     return 0;
 }
