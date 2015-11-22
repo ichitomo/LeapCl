@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		895533AA1C023E11000D53BA /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 895533A91C023E11000D53BA /* main.cpp */; };
+		895533B11C02401F000D53BA /* libLeap.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 895533B01C02401F000D53BA /* libLeap.dylib */; settings = {ASSET_TAGS = (); }; };
+		895533B31C024275000D53BA /* libLeap.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 895533B01C02401F000D53BA /* libLeap.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -20,11 +22,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
+		895533B21C024255000D53BA /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				895533B31C024275000D53BA /* libLeap.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		895533A61C023E10000D53BA /* LeapCl */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = LeapCl; sourceTree = BUILT_PRODUCTS_DIR; };
 		895533A91C023E11000D53BA /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		895533B01C02401F000D53BA /* libLeap.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libLeap.dylib; path = LeapSDK/lib/libLeap.dylib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -32,6 +45,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				895533B11C02401F000D53BA /* libLeap.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -41,6 +55,7 @@
 		8955339D1C023E10000D53BA = {
 			isa = PBXGroup;
 			children = (
+				895533B01C02401F000D53BA /* libLeap.dylib */,
 				895533A81C023E10000D53BA /* LeapCl */,
 				895533A71C023E10000D53BA /* Products */,
 			);
@@ -72,6 +87,7 @@
 				895533A21C023E10000D53BA /* Sources */,
 				895533A31C023E10000D53BA /* Frameworks */,
 				895533A41C023E10000D53BA /* CopyFiles */,
+				895533B21C024255000D53BA /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -160,6 +176,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				LIBRARY_SEARCH_PATHS = LeapSDK/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -196,6 +213,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				LIBRARY_SEARCH_PATHS = LeapSDK/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
@@ -205,6 +223,11 @@
 		895533AE1C023E11000D53BA /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				LEAPSDK_PATH = LeapSDK;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/LeapSDK/lib",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -212,6 +235,11 @@
 		895533AF1C023E11000D53BA /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				LEAPSDK_PATH = LeapSDK;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/LeapSDK/lib",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
