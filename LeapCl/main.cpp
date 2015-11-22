@@ -219,7 +219,7 @@ void SampleListener::onFocusLost(const Controller& controller) {
 }
 
 void SampleListener::onDeviceChange(const Controller& controller) {
-    //Leap Motionのデータを取得しているWindowsサービスとの接続／切断が通知される。onServiceDisconnect()が通知された場合には、何らかの原因でLeap Motionのデータが取得できなくなったので、サービスやOSの再起動が必要になる。
+    //Leap Motionコントローラーの接続／切断が通知される。センサーが接続されているかどうかの判別に利用できる。
     std::cout << "Device Changed" << std::endl;
     const DeviceList devices = controller.devices();
     
@@ -230,10 +230,12 @@ void SampleListener::onDeviceChange(const Controller& controller) {
 }
 
 void SampleListener::onServiceConnect(const Controller& controller) {
+    //Leap Motionのデータを取得しているWindowsサービスとの接続／切断が通知される。onServiceDisconnect()が通知された場合には、何らかの原因でLeap Motionのデータが取得できなくなったので、サービスやOSの再起動が必要になる。
     std::cout << "Service Connected" << std::endl;
 }
 
 void SampleListener::onServiceDisconnect(const Controller& controller) {
+    //Leap Motionのデータを取得しているWindowsサービスとの接続／切断が通知される。onServiceDisconnect()が通知された場合には、何らかの原因でLeap Motionのデータが取得できなくなったので、サービスやOSの再起動が必要になる。
     std::cout << "Service Disconnected" << std::endl;
 }
 
